@@ -10,13 +10,6 @@ metadata:
     - Laravel
   version: 1.0.0
 schemaVersion: 2.0.0
-projects:
-  - git:
-      checkoutFrom:
-        revision: docker
-      remotes:
-        origin: https://codeup.aliyun.com/5f1fb0f2d248146039338649/weber/weber-server.git
-    name: php-laravel-starter
 components:
   - name: cli
     container:
