@@ -13,8 +13,8 @@ components:
     image:
       imageName: topkee-php:8.0-apache-bullseye
       dockerfile:
-        uri: docker/Dockerfile
-        buildContext: .
+        location: Dockerfile
+        buildContext: ${PROJECTS_ROOT}/build
         rootRequired: false
   - name: outerloop-deploy
     kubernetes:
