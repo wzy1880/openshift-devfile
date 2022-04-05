@@ -6,6 +6,8 @@ metadata:
   description: laravel
   tags: ["laravel"]
   language: "php"
+  attributes:
+    alpha.dockerimage-port: 80
 components:
   - name: outerloop-build
     image:
