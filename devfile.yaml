@@ -5,32 +5,32 @@ metadata:
   displayName: laravel
   description: laravel
   tags: ["laravel"]
-  attributes:
-    alpha.dockerimage-port: 80
   language: "php"
 components:
   - name: outerloop-build
     image:
       imageName: topkee-php:8.0-apache-bullseye
       dockerfile:
-        location: Dockerfile
-        buildContext: ${PROJECTS_ROOT}/build
+        uri: build/Dockerfile
+        buildContext: ${PROJECTS_ROOT}
         rootRequired: false
   - name: outerloop-deploy
-    kubernetes:
-      uri: outerloop-deploy.yaml
+    container:
+      image: topkee-php:8.0-apache-bullseye
+      mountSources: true
+      sourceMapping: /var/www/html
 commands:
   - id: build-image
     apply:
       component: outerloop-build
-  - id: deployk8s
+  - id: deploy-container
     apply:
       component: outerloop-deploy
   - id: deploy
     composite:
       commands:
         - build-image
-        - deployk8s
+        - deploy-container
       group:
         kind: deploy
         isDefault: true
