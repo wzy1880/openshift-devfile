@@ -13,6 +13,7 @@ metadata:
 components:
   - name: outerloop-build
     image:
+      imageName: test-php
       dockerfile:
         uri: ./Dockerfile
         buildContext: build/php-8-fpm-bullseye
