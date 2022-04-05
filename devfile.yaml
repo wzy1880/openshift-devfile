@@ -20,7 +20,7 @@ components:
         rootRequired: false
   - name: runtime
     container:
-      image: php:8.0-fpm-bullseye
+      image: test-php
       mountSources: true
       sourceMapping: /var/www/html
 commands:
@@ -28,6 +28,7 @@ commands:
     composite:
       commands:
         - build-image
+        - composer-install
       group:
         kind: deploy
         isDefault: true
@@ -40,15 +41,5 @@ commands:
     exec:
       component: runtime
       commandLine: "composer install"
-      group:
-        isDefault: true
-        kind: build
       workingDir: ${PROJECT_SOURCE}
-  - id: run
-    exec:
-      commandLine: php-fpm
-      component: runtime
-      group:
-        isDefault: true
-        kind: run
-      workingDir: ${PROJECT_SOURCE}
+
