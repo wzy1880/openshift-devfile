@@ -14,9 +14,9 @@ components:
       imageName: topkee-php:8.0-apache-bullseye
       dockerfile:
         uri: build/Dockerfile
-        buildContext: ${PROJECTS_ROOT}
+        buildContext: ${PROJECTS_ROOT}/build
         rootRequired: false
-  - name: outerloop-deploy
+  - name: runtime
     container:
       image: topkee-php:8.0-apache-bullseye
       mountSources: true
@@ -27,7 +27,7 @@ commands:
       component: outerloop-build
   - id: deploy-container
     apply:
-      component: outerloop-deploy
+      component: runtime
   - id: deploy
     composite:
       commands:
@@ -36,3 +36,19 @@ commands:
       group:
         kind: deploy
         isDefault: true
+  - id: composer-install
+    exec:
+      component: runtime
+      commandLine: "composer install"
+      group:
+        isDefault: true
+        kind: build
+      workingDir: ${PROJECT_SOURCE}
+  - id: run
+    exec:
+      commandLine: php artisan serve --host=0.0.0.0
+      component: runtime
+      group:
+        isDefault: true
+        kind: run
+      workingDir: ${PROJECT_SOURCE}
