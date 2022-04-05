@@ -1,42 +1,27 @@
 schemaVersion: 2.2.0
 metadata:
-  name: java-springboot
-  version: 1.1.0
-  attributes:
-    alpha.dockerimage-port: 8081
-  displayName: Java Spring Boot
-  description: Java Spring Boot using Maven
-  tags: ["Java", "Spring"]
-  projectType: "springboot"
-  language: "java"
-  provider: Red Hat
-  supportUrl: https://github.com/devfile-samples/devfile-support#support-information
-parent:
-  id: java-springboot
-  registryUrl: "https://registry.devfile.io"
+  description: Stack with Laravel 8
+  displayName: Laravel
+  icon: https://raw.githubusercontent.com/devfile-samples/devfile-stack-icons/main/laravel.svg
+  language: php
+  name: php22-laravel
+  projectType: laravel
+  tags:
+    - PHP
+    - Composer
+    - Laravel
+  version: 1.0.0
 components:
-  - name: outerloop-build
-    image:
-      imageName: java-springboot-image:latest
-      dockerfile:
-        uri: docker/Dockerfile
-        buildContext: .
-        rootRequired: false
-  - name: outerloop-deploy
-    kubernetes:
-      uri: outerloop-deploy.yaml
+  - name: cli
+    container:
+      image: registry.cn-hongkong.aliyuncs.com/topkee-cloud/php:8.0-apache-bullseye
+      mountSources: true
+      sourceMapping: /var/www/html
 commands:
-  - id: build-image
-    apply:
-      component: outerloop-build
-  - id: deployk8s
-    apply:
-      component: outerloop-deploy
-  - id: deploy
-    composite:
-      commands:
-        - build-image
-        - deployk8s
+  - id: run
+    exec:
+      component: cli
+      commandLine: "ls -las"
       group:
-        kind: deploy
         isDefault: true
+        kind: run
