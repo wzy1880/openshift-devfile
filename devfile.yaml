@@ -1,33 +1,43 @@
+schemaVersion: 2.2.0
 metadata:
-  description: Stack with Laravel 8
-  displayName: Laravel
-  icon: https://raw.githubusercontent.com/devfile-samples/devfile-stack-icons/main/laravel.svg
-  language: php
-  name: test
-  tags:
-    - PHP
-    - Composer
-    - Laravel
-  version: 1.0.0
-schemaVersion: 2.0.0
-projects:
-  - git:
-      checkoutFrom:
-        revision: docker
-      remotes:
-        origin: https://codeup.aliyun.com/5f1fb0f2d248146039338649/weber/weber-server.git
-    name: php-laravel-starter
+  name: java-quarkus
+  version: 1.1.0
+  provider: Red Hat
+  supportUrl: https://github.com/devfile-samples/devfile-support#support-information
+  website: https://quarkus.io
+  displayName: Quarkus Java
+  description: Upstream Quarkus with Java+GraalVM
+  tags: ["Java", "Quarkus"]
+  projectType: "quarkus"
+  language: "java"
+  attributes:
+    alpha.dockerimage-port: 8081
+parent:
+  id: java-quarkus
+  registryUrl: "https://registry.devfile.io"
 components:
-  - name: cli
-    container:
-      image: registry.cn-hongkong.aliyuncs.com/topkee-cloud/php:8.0-apache-bullseye
-      mountSources: true
-      sourceMapping: /var/www/html
+  - name: outerloop-build
+    image:
+      imageName: java-quarkus-image:latest
+      dockerfile:
+        uri: src/main/docker/Dockerfile.jvm.staged
+        buildContext: .
+        rootRequired: false
+  - name: outerloop-deploy
+    kubernetes:
+      uri: outerloop-deploy.yaml
 commands:
-  - id: run
-    exec:
-      component: cli
-      commandLine: "ls -las"
+  - id: build-image
+    apply:
+      component: outerloop-build
+  - id: deployk8s
+    apply:
+      component: outerloop-deploy
+  - id: deploy
+    composite:
+      commands:
+        - build-image
+        - deployk8s
       group:
+        kind: deploy
         isDefault: true
-        kind: run
