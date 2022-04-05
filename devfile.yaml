@@ -11,12 +11,25 @@ metadata:
   attributes:
     alpha.dockerimage-port: 80
 components:
+  - name: outerloop-build
+    image:
+      imageName: php:8.0-fpm-bullseye
+      dockerfile:
+        uri: ./Dockerfile
+        buildContext: ${PROJECTS_ROOT}/build/php-8-fpm-bullseye
+        rootRequired: false
   - name: runtime
     container:
-      image: "{{CONTAINER_IMAGE}}"
+      image: php:8.0-fpm-bullseye
       mountSources: true
       sourceMapping: /var/www/html
 commands:
+  - id: build-image
+    apply:
+      component: outerloop-build
+      group:
+        kind: deploy
+        isDefault: true
   - id: composer-install
     exec:
       component: runtime
@@ -27,7 +40,7 @@ commands:
       workingDir: ${PROJECT_SOURCE}
   - id: run
     exec:
-      commandLine: "php-fpm"
+      commandLine: php-fpm
       component: runtime
       group:
         isDefault: true
