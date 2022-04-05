@@ -1,4 +1,6 @@
 schemaVersion: 2.2.0
+variables:
+  CONTAINER_IMAGE: registry.cn-hongkong.aliyuncs.com/topkeecloud/php:8.0-fpm-bullseye
 metadata:
   name: laravel
   version: 1.1.0
@@ -9,33 +11,12 @@ metadata:
   attributes:
     alpha.dockerimage-port: 80
 components:
-  - name: outerloop-build
-    image:
-      imageName: topkee-php:8.0-apache-bullseye
-      dockerfile:
-        uri: build/Dockerfile
-        buildContext: ${PROJECTS_ROOT}/build
-        rootRequired: false
   - name: runtime
     container:
-      image: topkee-php:8.0-apache-bullseye
+      image: "{{CONTAINER_IMAGE}}"
       mountSources: true
       sourceMapping: /var/www/html
 commands:
-  - id: build-image
-    apply:
-      component: outerloop-build
-  - id: deploy-container
-    apply:
-      component: runtime
-  - id: deploy
-    composite:
-      commands:
-        - build-image
-        - deploy-container
-      group:
-        kind: deploy
-        isDefault: true
   - id: composer-install
     exec:
       component: runtime
@@ -46,7 +27,7 @@ commands:
       workingDir: ${PROJECT_SOURCE}
   - id: run
     exec:
-      commandLine: php artisan serve --host=0.0.0.0
+      commandLine: "php-fpm"
       component: runtime
       group:
         isDefault: true
