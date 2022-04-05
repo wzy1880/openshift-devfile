@@ -16,7 +16,7 @@ components:
       imageName: php:8.0-fpm-bullseye
       dockerfile:
         uri: ./Dockerfile
-        buildContext: ${PROJECTS_ROOT}/build/php-8-fpm-bullseye
+        buildContext: build/php-8-fpm-bullseye
         rootRequired: false
   - name: runtime
     container:
