@@ -23,7 +23,7 @@ commands:
       component: outerloop-build
   - id: deployk8s
     apply:
-      component: outerloop-deploy.yaml
+      component: outerloop-deploy
   - id: deploy
     composite:
       commands:
