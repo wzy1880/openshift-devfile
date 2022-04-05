@@ -1,43 +1,91 @@
-schemaVersion: 2.2.0
+schemaVersion: 2.0.0
 metadata:
-  name: java-quarkus
-  version: 1.1.0
-  provider: Red Hat
-  supportUrl: https://github.com/devfile-samples/devfile-support#support-information
-  website: https://quarkus.io
-  displayName: Quarkus Java
-  description: Upstream Quarkus with Java+GraalVM
-  tags: ["Java", "Quarkus"]
-  projectType: "quarkus"
-  language: "java"
-  attributes:
-    alpha.dockerimage-port: 8081
-parent:
-  id: java-quarkus
-  registryUrl: "https://registry.devfile.io"
+  description: Stack with Laravel 8
+  displayName: Laravel
+  icon: https://raw.githubusercontent.com/devfile-samples/devfile-stack-icons/main/laravel.svg
+  language: php
+  name: php-laravel
+  projectType: laravel
+  tags:
+    - PHP
+    - Composer
+    - Laravel
+  version: 1.0.0
+starterProjects:
+  - name: php-laravel-starter
+    git:
+      checkoutFrom:
+        revision: main
+      remotes:
+        origin: https://github.com/devfile-samples/devfile-stack-php-laravel.git
 components:
-  - name: outerloop-build
-    image:
-      imageName: java-quarkus-image:latest
-      dockerfile:
-        uri: src/main/docker/Dockerfile.jvm.staged
-        buildContext: .
-        rootRequired: false
-  - name: outerloop-deploy
-    kubernetes:
-      uri: outerloop-deploy.yaml
+  - container:
+      endpoints:
+        - name: http
+          targetPort: 8000
+      image: composer:2.1.11
+      memoryLimit: 1024Mi
+      mountSources: true
+    name: runtime
 commands:
-  - id: build-image
-    apply:
-      component: outerloop-build
-  - id: deployk8s
-    apply:
-      component: outerloop-deploy
-  - id: deploy
-    composite:
-      commands:
-        - build-image
-        - deployk8s
+  - exec:
+      commandLine: composer install
+      component: runtime
       group:
-        kind: deploy
+        isDefault: false
+        kind: build
+      workingDir: ${PROJECT_SOURCE}
+    id: install
+  - exec:
+      commandLine: cp .env.example .env
+      component: runtime
+      group:
+        isDefault: false
+        kind: build
+      workingDir: ${PROJECT_SOURCE}
+    id: cp-env
+  - exec:
+      commandLine: php artisan config:clear
+      component: runtime
+      group:
+        isDefault: false
+        kind: build
+      workingDir: ${PROJECT_SOURCE}
+    id: clear-config
+  - exec:
+      commandLine: php artisan key:generate
+      component: runtime
+      group:
+        isDefault: false
+        kind: build
+      workingDir: ${PROJECT_SOURCE}
+    id: gen-new-app-key
+  - exec:
+      commandLine: composer dump-autoload
+      component: runtime
+      group:
+        isDefault: false
+        kind: build
+      workingDir: ${PROJECT_SOURCE}
+    id: composer-dump
+  - composite:
+      commands:
+        - install
+        - cp-env
+        - clear-config
+        - gen-new-app-key
+        - composer-dump
+      group:
         isDefault: true
+        kind: build
+      label: Provision Laravel Server
+      parallel: false
+    id: init-server
+  - exec:
+      commandLine: php artisan serve --host=0.0.0.0
+      component: runtime
+      group:
+        isDefault: true
+        kind: run
+      workingDir: ${PROJECT_SOURCE}
+    id: run
